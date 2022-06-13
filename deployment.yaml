@@ -29,12 +29,8 @@ spec:
   triggers:
     - type: "ImageChange"
   source:
-    dockerfile: |-
-      FROM python:3-alpine
-      RUN wget https://raw.githubusercontent.com/teamdigitale/api-starter-kit/master/openapi/simple.yaml -O /openapi.yaml
-      RUN pip install connexion connexion[swagger-ui]
-      ENTRYPOINT ["/usr/local/bin/connexion"]
-      CMD ["run", "/openapi.yaml", "--mock=all"]
+    git:
+      uri: "https://github.com/par-tec/toi-python-api"
   strategy:
     type: Docker
   output:
