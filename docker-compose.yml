@@ -27,7 +27,7 @@ services:
   # This container will run successfully
   # only if all dependencies return no errors.
   test:
-    image: busybox
+    build: .
     depends_on:
       pre-commit:
         condition: service_completed_successfully

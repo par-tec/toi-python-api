@@ -1,0 +1,66 @@
+#
+# Openshift deployment file
+#
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-python-service
+spec:
+  selector:
+    app: hello-python
+  ports:
+  - protocol: "TCP"
+    port: 80
+    targetPort: 5000
+  type: LoadBalancer
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: hello-python
+---
+kind: BuildConfig
+apiVersion: build.openshift.io/v1
+metadata:
+  name: hello-python
+spec:
+  runPolicy: "Serial"
+  triggers:
+    - type: "ImageChange"
+  source:
+    dockerfile: |-
+      FROM python:3-alpine
+      RUN wget https://raw.githubusercontent.com/teamdigitale/api-starter-kit/master/openapi/simple.yaml -O /openapi.yaml
+      RUN pip install connexion connexion[swagger-ui]
+      ENTRYPOINT ["/usr/local/bin/connexion"]
+      CMD ["run", "/openapi.yaml", "--mock=all"]
+  strategy:
+    type: Docker
+  output:
+    to:
+      kind: "ImageStreamTag"
+      name: hello-python:latest
+  postCommit:
+      script: "echo 'OK'"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-python
+spec:
+  selector:
+    matchLabels:
+      app: hello-python
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: hello-python
+    spec:
+      containers:
+      - name: hello-python
+        image: image-registry.openshift-image-registry.svc:5000/test-1/hello-python:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5000
