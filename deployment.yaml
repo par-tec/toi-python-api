@@ -24,8 +24,6 @@ kind: BuildConfig
 apiVersion: build.openshift.io/v1
 metadata:
   name: hello-python
-  labels:
-    par-tec.it/disposable: deleteme
 spec:
   runPolicy: "Serial"
   triggers:
